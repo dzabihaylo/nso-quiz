@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSO Study Quiz</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 700px;
+            width: 100%;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .progress-container {
+            background: #ecf0f1;
+            border-radius: 10px;
+            height: 30px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .score-display {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .answer-option {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .answer-option:hover {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+
+        .answer-option.selected {
+            border-color: #667eea;
+            background: #e8ecff;
+        }
+
+        .answer-option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .answer-option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .answer-option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option-label {
+            font-weight: bold;
+            min-width: 30px;
+            color: #667eea;
+        }
+
+        .option-text {
+            flex: 1;
+            color: #2c3e50;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+
+        .feedback-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        button.secondary {
+            background: #6c757d;
+        }
+
+        button.secondary:hover {
+            background: #5a6268;
+        }
+
+        .results-container {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .results-score {
+            font-size: 48px;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .results-message {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .results-detail {
+            font-size: 18px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+
+        .performance-level {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .performance-excellent {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+
+        .performance-good {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            color: #0c5460;
+        }
+
+        .performance-fair {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+
+        .performance-needs-study {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .quiz-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .question-text {
+                font-size: 16px;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div id="quiz-header">
+            <h1>NSO Study Quiz</h1>
+            <div class="subtitle">Test your knowledge of roller derby NSO roles and rules</div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar">0%</div>
+            </div>
+            
+            <div class="score-display">
+                <span id="score-text">Score: 0 / 0</span>
+            </div>
+        </div>
+
+        <div id="quiz-content">
+            <!-- Questions will be inserted here -->
+        </div>
+
+        <div id="results-container" class="results-container hidden">
+            <!-- Results will be shown here -->
+        </div>
+
+        <div class="button-container">
+            <button id="submit-btn" onclick="submitAnswer()" disabled>Submit Answer</button>
+            <button id="next-btn" onclick="nextQuestion()" class="hidden">Next Question</button>
+            <button id="restart-btn" onclick="restartQuiz()" class="secondary hidden">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "What is the maximum duration of a single jam?",
+                options: [
+                    "1 minute",
+                    "2 minutes",
+                    "3 minutes",
+                    "Until the lead jammer calls it off"
+                ],
+                correct: 1,
+                explanation: "A jam can last up to 2 minutes maximum, though it often ends earlier if the lead jammer calls it off."
+            },
+            {
+                question: "How much time is there between jams?",
+                options: [
+                    "15 seconds",
+                    "30 seconds",
+                    "45 seconds",
+                    "1 minute"
+                ],
+                correct: 1,
+                explanation: "There are 30 seconds between jams for teams to line up for the next jam."
+            },
+            {
+                question: "Which NSO role is most likely for a first-time volunteer?",
+                options: [
+                    "Head NSO",
+                    "Penalty Tracker",
+                    "Scoreboard Operator",
+                    "Lineup Tracker"
+                ],
+                correct: 2,
+                explanation: "Scoreboard Operator is the most common beginner role. You update the visible scoreboard based on what scorekeepers tell you."
+            },
+            {
+                question: "How long does each period last in a regulation game?",
+                options: [
+                    "15 minutes",
+                    "20 minutes",
+                    "30 minutes",
+                    "45 minutes"
+                ],
+                correct: 2,
+                explanation: "Each period lasts 30 minutes, and there are two periods in a game."
+            },
+            {
+                question: "How can you identify which player is the jammer?",
+                options: [
+                    "They wear a different colored uniform",
+                    "They have a star on their helmet",
+                    "They wear a stripe on their helmet",
+                    "They wear a special armband"
+                ],
+                correct: 1,
+                explanation: "Jammers wear a star on their helmet cover. This makes them easy to identify as the scoring players."
+            },
+            {
+                question: "What is the typical duration of a standard penalty?",
+                options: [
+                    "15 seconds",
+                    "30 seconds",
+                    "1 minute",
+                    "2 minutes"
+                ],
+                correct: 1,
+                explanation: "Most penalties are 30 seconds. Some major penalties can be 1 minute, but 30 seconds is standard."
+            },
+            {
+                question: "As a Jam Timer, when do you START the timer?",
+                options: [
+                    "When teams finish lining up",
+                    "When the head referee signals",
+                    "When the jam-starting whistle blows",
+                    "When the previous jam ends"
+                ],
+                correct: 2,
+                explanation: "Start the timer when you hear the jam-starting whistle blow. This signals the beginning of the jam."
+            },
+            {
+                question: "When do jammers begin scoring points?",
+                options: [
+                    "Immediately when the jam starts",
+                    "After their initial pass through the pack",
+                    "Only in the last minute of the jam",
+                    "When the referee signals"
+                ],
+                correct: 1,
+                explanation: "Jammers must complete their initial pass through the pack first (no points scored). After that, they score 1 point for each opposing blocker they pass."
+            },
+            {
+                question: "How many blockers does each team have on the track?",
+                options: [
+                    "3 blockers",
+                    "4 blockers",
+                    "5 blockers",
+                    "6 blockers"
+                ],
+                correct: 1,
+                explanation: "Each team has 4 blockers on the track, plus 1 jammer, for a total of 5 skaters per team during a jam."
+            },
+            {
+                question: "What should you do if you're unsure about your NSO role on game day?",
+                options: [
+                    "Try to figure it out yourself",
+                    "Watch and copy others",
+                    "Ask the head NSO for clarification",
+                    "Wait until someone corrects you"
+                ],
+                correct: 2,
+                explanation: "Always ask the head NSO if you're unsure. They expect questions from new volunteers and would rather clarify than have you guess."
+            },
+            {
+                question: "As a Penalty Box Timer, when can a penalized skater return to the track?",
+                options: [
+                    "Whenever they want",
+                    "After their penalty time expires OR the jam ends, whichever comes first",
+                    "Only at the start of the next jam",
+                    "Only after a full minute has passed"
+                ],
+                correct: 1,
+                explanation: "Skaters can return when their penalty time is up OR when the jam ends, whichever happens first. The jam ending releases all penalized skaters."
+            },
+            {
+                question: "What does it mean when you hear 4 whistle blasts?",
+                options: [
+                    "A penalty has been called",
+                    "The period is over",
+                    "The jam has ended",
+                    "Time to line up"
+                ],
+                correct: 2,
+                explanation: "Four whistle blasts signal the end of a jam. This is your cue as Jam Timer to stop your timer."
+            },
+            {
+                question: "How many points does a jammer score for passing an opposing blocker?",
+                options: [
+                    "1 point per blocker",
+                    "2 points per blocker",
+                    "5 points per blocker",
+                    "Points vary by position"
+                ],
+                correct: 0,
+                explanation: "Jammers score 1 point for each opposing blocker they pass (after the initial pass). With 4 opposing blockers, a jammer can score up to 4 points per trip through the pack."
+            },
+            {
+                question: "As Scoreboard Operator, what is your primary responsibility?",
+                options: [
+                    "Track penalties yourself",
+                    "Count points yourself",
+                    "Update the scoreboard based on what scorekeepers tell you",
+                    "Make judgment calls on scoring"
+                ],
+                correct: 2,
+                explanation: "Your job is to press buttons to update the visible scoreboard based on information from the scorekeepers. You're not counting or judging—just displaying what you're told."
+            },
+            {
+                question: "True or False: A jam can end before 2 minutes if the lead jammer calls it off.",
+                options: [
+                    "True",
+                    "False"
+                ],
+                correct: 0,
+                explanation: "True! The lead jammer (first to legally pass all blockers) can call off the jam early by putting their hands on their hips repeatedly. This is a strategic advantage."
+            },
+            {
+                question: "What should you bring to your first scrimmage as an NSO?",
+                options: [
+                    "Your own stopwatch and whistle",
+                    "Pen, paper, and water bottle",
+                    "Protective gear",
+                    "Your own scoreboard"
+                ],
+                correct: 1,
+                explanation: "Bring pen and paper for notes, a water bottle, and comfortable clothes. The venue will provide specialized equipment like timers and scoreboards. A personal stopwatch is optional but can be helpful."
+            },
+            {
+                question: "How early should you arrive for your first NSO shift?",
+                options: [
+                    "Right at start time",
+                    "10 minutes early",
+                    "30-45 minutes early",
+                    "2 hours early"
+                ],
+                correct: 2,
+                explanation: "Arrive 30-45 minutes early to introduce yourself, get your assignment, learn the equipment, and receive any specific instructions for your role."
+            },
+            {
+                question: "True or False: NSOs make judgment calls about penalties.",
+                options: [
+                    "True",
+                    "False"
+                ],
+                correct: 1,
+                explanation: "False! Referees make judgment calls about penalties. NSOs track timing, scoring, and administrative tasks. You don't judge or call penalties."
+            },
+            {
+                question: "What is the 'pack' in roller derby?",
+                options: [
+                    "The team's equipment bag",
+                    "The main group of blockers from both teams",
+                    "The penalty box area",
+                    "The scoring zone"
+                ],
+                correct: 1,
+                explanation: "The pack is the main group of blockers from both teams skating together. It's the largest group of in-bounds blockers with at least one blocker from each team."
+            },
+            {
+                question: "What's the most important thing to remember as a first-time NSO?",
+                options: [
+                    "Memorize every rule",
+                    "Never ask questions",
+                    "Focus on doing your specific assigned task well",
+                    "Try to help with everyone's roles"
+                ],
+                correct: 2,
+                explanation: "Focus on doing YOUR specific task well. You don't need to understand everything or help with other roles. Master your assignment, ask questions when needed, and let others handle their responsibilities."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswer = null;
+        let answered = false;
+
+        function initQuiz() {
+            showQuestion();
+            updateProgress();
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            const quizContent = document.getElementById('quiz-content');
+            
+            let optionsHtml = '';
+            question.options.forEach((option, index) => {
+                const label = String.fromCharCode(65 + index); // A, B, C, D...
+                optionsHtml += `
+                    <div class="answer-option" onclick="selectAnswer(${index})" id="option-${index}">
+                        <span class="option-label">${label}.</span>
+                        <span class="option-text">${option}</span>
+                    </div>
+                `;
+            });
+
+            quizContent.innerHTML = `
+                <div class="question-card">
+                    <div class="question-number">Question ${currentQuestion + 1} of ${questions.length}</div>
+                    <div class="question-text">${question.question}</div>
+                    ${optionsHtml}
+                    <div class="feedback" id="feedback"></div>
+                </div>
+            `;
+
+            selectedAnswer = null;
+            answered = false;
+            document.getElementById('submit-btn').disabled = true;
+            document.getElementById('next-btn').classList.add('hidden');
+        }
+
+        function selectAnswer(index) {
+            if (answered) return;
+
+            selectedAnswer = index;
+            
+            // Remove selected class from all options
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            document.getElementById(`option-${index}`).classList.add('selected');
+            
+            // Enable submit button
+            document.getElementById('submit-btn').disabled = false;
+        }
+
+        function submitAnswer() {
+            if (selectedAnswer === null || answered) return;
+
+            answered = true;
+            const question = questions[currentQuestion];
+            const feedback = document.getElementById('feedback');
+            const isCorrect = selectedAnswer === question.correct;
+
+            // Disable all options
+            document.querySelectorAll('.answer-option').forEach(option => {
+                option.classList.add('disabled');
+                option.onclick = null;
+            });
+
+            // Show correct/incorrect styling
+            const selectedOption = document.getElementById(`option-${selectedAnswer}`);
+            const correctOption = document.getElementById(`option-${question.correct}`);
+
+            if (isCorrect) {
+                selectedOption.classList.add('correct');
+                feedback.className = 'feedback correct show';
+                feedback.innerHTML = `
+                    <div class="feedback-title">Correct! ✓</div>
+                    <div>${question.explanation}</div>
+                `;
+                score++;
+            } else {
+                selectedOption.classList.add('incorrect');
+                correctOption.classList.add('correct');
+                feedback.className = 'feedback incorrect show';
+                feedback.innerHTML = `
+                    <div class="feedback-title">Not quite. ✗</div>
+                    <div>${question.explanation}</div>
+                `;
+            }
+
+            // Update score display
+            document.getElementById('score-text').textContent = `Score: ${score} / ${currentQuestion + 1}`;
+
+            // Hide submit button, show next button
+            document.getElementById('submit-btn').classList.add('hidden');
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+
+            if (currentQuestion < questions.length) {
+                showQuestion();
+                updateProgress();
+                
+                // Reset buttons
+                document.getElementById('submit-btn').classList.remove('hidden');
+                document.getElementById('submit-btn').disabled = true;
+                document.getElementById('next-btn').classList.add('hidden');
+            } else {
+                showResults();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion) / questions.length) * 100;
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = progress + '%';
+            progressBar.textContent = Math.round(progress) + '%';
+        }
+
+        function showResults() {
+            const percentage = (score / questions.length) * 100;
+            const resultsContainer = document.getElementById('results-container');
+            
+            let performanceClass = '';
+            let performanceMessage = '';
+            let recommendation = '';
+
+            if (percentage >= 90) {
+                performanceClass = 'performance-excellent';
+                performanceMessage = 'Excellent!';
+                recommendation = 'You have a strong grasp of NSO basics and are well-prepared for your first scrimmage. Focus on staying calm and asking questions on game day if anything is unclear.';
+            } else if (percentage >= 75) {
+                performanceClass = 'performance-good';
+                performanceMessage = 'Good job!';
+                recommendation = 'You understand most of the key concepts. Review the questions you missed and focus on those areas over the next few days.';
+            } else if (percentage >= 60) {
+                performanceClass = 'performance-fair';
+                performanceMessage = 'Fair start';
+                recommendation = 'You have a basic understanding but need more study time. Focus on the daily study plan, especially timing and NSO role details.';
+            } else {
+                performanceClass = 'performance-needs-study';
+                performanceMessage = 'Keep studying';
+                recommendation = 'Spend more time with the study materials, especially the timing reference and NSO role descriptions. Consider retaking this quiz after reviewing.';
+            }
+
+            resultsContainer.innerHTML = `
+                <div class="results-score">${score} / ${questions.length}</div>
+                <div class="results-message">${performanceMessage}</div>
+                <div class="results-detail">${percentage.toFixed(0)}% correct</div>
+                <div class="performance-level ${performanceClass}">
+                    ${recommendation}
+                </div>
+            `;
+
+            // Hide quiz content and show results
+            document.getElementById('quiz-content').classList.add('hidden');
+            document.getElementById('quiz-header').classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+
+            // Show restart button
+            document.getElementById('submit-btn').classList.add('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+            document.getElementById('restart-btn').classList.remove('hidden');
+
+            // Update progress bar to 100%
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = '100%';
+            progressBar.textContent = '100%';
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            selectedAnswer = null;
+            answered = false;
+
+            // Show quiz content and hide results
+            document.getElementById('quiz-content').classList.remove('hidden');
+            document.getElementById('quiz-header').classList.remove('hidden');
+            document.getElementById('results-container').classList.add('hidden');
+
+            // Reset buttons
+            document.getElementById('submit-btn').classList.remove('hidden');
+            document.getElementById('restart-btn').classList.add('hidden');
+
+            // Reset score display
+            document.getElementById('score-text').textContent = 'Score: 0 / 0';
+
+            // Restart quiz
+            initQuiz();
+        }
+
+        // Initialize quiz when page loads
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
